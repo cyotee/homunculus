@@ -210,6 +210,50 @@ This is v0.1. It's exploring an idea, not production-ready.
 
 ---
 
+## The Core Fragility
+
+Being honest: the "living" behaviors depend on skills firing, and skills are probabilistic.
+
+```
+User opens project
+       ↓
+session-memory skill SHOULD fire  ← might not
+       ↓
+Claude greets with context
+       ↓
+User works
+       ↓
+pattern-detection skill SHOULD watch  ← might not
+       ↓
+Patterns get noticed
+```
+
+**If skills don't fire, the homunculus seems dead.** Commands (`/status`, `/evolve`) always work as fallback.
+
+| What | Reliability |
+|------|-------------|
+| Commands (`/init`, `/evolve`) | Always works |
+| Hooks (session count) | Always works |
+| Skills (memory, patterns) | ~50-80% of the time |
+
+---
+
+## Ideas For Future Versions
+
+Not a roadmap—just thinking out loud about how to make it more reliable:
+
+**Hooks for critical paths** — Move session identity from skills to a `UserPromptSubmit` hook. Guarantees Claude knows who you are every time.
+
+**Action logging** — `PostToolUse` hook appends to `actions.log`. Pattern detection reads the log instead of relying on skill activation.
+
+**Commands as escape hatch** — `/homunculus:wake` to force session-memory, `/homunculus:analyze` to force pattern detection.
+
+**Background daemon** — Cheap Haiku agent runs in background, analyzes patterns, updates state. Main conversation stays fast.
+
+These are ideas. We poke at this when we have time.
+
+---
+
 ## Make It Yours
 
 Everything is open. Fork it. Reshape its instincts. Change how it thinks.
