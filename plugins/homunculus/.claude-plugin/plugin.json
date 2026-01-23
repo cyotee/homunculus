@@ -9,7 +9,7 @@
   "license": "MIT",
   "keywords": ["ai", "evolution", "living", "homunculus", "alchemy", "self-evolving", "instincts"],
   "commands": "./commands/",
-  "agents": "./agents/",
+  "agents": ["./agents/observer.md"],
   "skills": "./skills/",
   "hooks": "./hooks/hooks.json"
 }
