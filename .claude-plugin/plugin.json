@@ -11,6 +11,5 @@
   "keywords": ["ai", "evolution", "living", "homunculus", "alchemy", "self-evolving", "instincts"],
   "commands": "./commands/",
   "agents": ["./agents/observer.md"],
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }
