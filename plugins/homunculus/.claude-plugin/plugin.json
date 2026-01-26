@@ -5,7 +5,7 @@
   "author": {
     "name": "Nikshep Saravanna"
   },
-  "repository": "https://github.com/humanplane/homunculus",
+  "repository": "https://github.com/cyotee/homunculus",
   "license": "MIT",
   "keywords": ["ai", "evolution", "living", "homunculus", "alchemy", "self-evolving", "instincts"],
   "commands": "./commands/",
