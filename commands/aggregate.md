@@ -1,12 +1,21 @@
 # Aggregate
 
-Collect observations from all project directories into the global homunculus.
+Collect observations from configured sources into the global homunculus, then prune source files.
 
 ## Run
 
 ```bash
 "${CLAUDE_PLUGIN_ROOT}/scripts/aggregate.sh"
 ```
+
+## Behavior
+
+1. Read observations from each configured source
+2. Append to global store with source tag
+3. Verify write count matches source count
+4. Prune source file (only after verification)
+
+If verification fails, the source file is NOT pruned.
 
 ## Report
 
@@ -15,26 +24,19 @@ After running, report:
 ```
 Aggregation complete.
 
-Sources: [N] projects
-New observations: [N]
-Total global: [N]
-
-Sources:
-- [PROJECT_PATH_1]
-- [PROJECT_PATH_2]
-...
+Sources: [N]
+Total global observations: [N]
 ```
 
-## If No Sources Found
+## If No Sources Configured
 
 ```
-No project sources found yet.
+No sources configured.
 
-The aggregator auto-discovers projects with .claude/homunculus/ directories
-in ~/Development, ~/Projects, and ~/Code.
+Add project paths to ~/.claude/homunculus/sources.json
 
-To manually add a source:
-Edit ~/.claude/homunculus/sources.json and add paths to the "sources" array.
+Example:
+  {"sources": ["/path/to/project1", "/path/to/project2"]}
 ```
 
 ## Managing Sources
@@ -46,12 +48,6 @@ The sources file is at `~/.claude/homunculus/sources.json`:
   "sources": [
     "/path/to/project1",
     "/path/to/project2"
-  ],
-  "auto_discover": true
+  ]
 }
 ```
-
-- `auto_discover: true` - Automatically find projects with observations
-- `sources` - Manually specified project paths
-
-Each aggregation tracks the last timestamp per source to avoid duplicates.
