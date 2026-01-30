@@ -3,6 +3,10 @@
 # Collects observations from configured sources into global store.
 # Prunes source files after verified aggregation.
 #
+# Usage:
+#   aggregate.sh              - Aggregate from all configured sources
+#   aggregate.sh --migrate <path>  - One-time migration from a specific path
+#
 # Sources are configured in ~/.claude/homunculus/sources.json
 
 set -e
@@ -25,19 +29,20 @@ if [ ! -f "$GLOBAL_OBS" ]; then
 fi
 
 # Aggregate and prune a single source
+# Returns: 0 on success, 1 on verification failure, 2 on no observations
 aggregate_source() {
   local source_path="$1"
   local source_obs="$source_path/.claude/homunculus/observations.jsonl"
 
   if [ ! -f "$source_obs" ]; then
     echo "No observations at: $source_path"
-    return 0
+    return 2
   fi
 
   local source_count=$(wc -l < "$source_obs" | tr -d ' ')
   if [ "$source_count" -eq 0 ]; then
     echo "Empty observations at: $source_path"
-    return 0
+    return 2
   fi
 
   # Count global observations before
@@ -65,10 +70,63 @@ aggregate_source() {
   # Prune source file
   : > "$source_obs"
   echo "Aggregated $added observations from: $source_path (pruned)"
+  return 0
 }
 
-# Main
-main() {
+# Migrate observations from a single path (one-time, not added to sources)
+migrate_path() {
+  local migrate_path="$1"
+
+  echo "=== Homunculus One-Time Migration ==="
+  echo ""
+
+  # Validate path exists
+  if [ ! -d "$migrate_path" ]; then
+    echo "ERROR: Path does not exist: $migrate_path"
+    exit 1
+  fi
+
+  # Resolve to absolute path
+  migrate_path=$(cd "$migrate_path" && pwd)
+
+  local obs_file="$migrate_path/.claude/homunculus/observations.jsonl"
+  if [ ! -f "$obs_file" ]; then
+    echo "No observations found at: $migrate_path"
+    echo ""
+    echo "Expected: $obs_file"
+    exit 0
+  fi
+
+  local obs_count=$(wc -l < "$obs_file" | tr -d ' ')
+  if [ "$obs_count" -eq 0 ]; then
+    echo "No observations to migrate (file is empty)"
+    exit 0
+  fi
+
+  echo "Found $obs_count observations at: $migrate_path"
+  echo "Migrating to global store..."
+  echo ""
+
+  aggregate_source "$migrate_path"
+  local result=$?
+
+  echo ""
+  if [ $result -eq 0 ]; then
+    echo "=== Migration Complete ==="
+    local total=$(wc -l < "$GLOBAL_OBS" 2>/dev/null | tr -d ' ')
+    echo "Migrated: $obs_count observations"
+    echo "Total global observations: ${total:-0}"
+    echo ""
+    echo "The path was NOT added to sources."
+    echo "Use /homunculus:add-source to add it permanently."
+  elif [ $result -eq 1 ]; then
+    echo "=== Migration Failed ==="
+    echo "Verification failed. Source file preserved."
+  fi
+}
+
+# Main aggregation from all configured sources
+main_aggregate() {
   echo "=== Homunculus Observation Aggregator ==="
   echo ""
 
@@ -81,6 +139,9 @@ main() {
     echo ""
     echo "Example:"
     echo '  {"sources": ["/path/to/project1", "/path/to/project2"]}'
+    echo ""
+    echo "Or use --migrate to do a one-time harvest:"
+    echo '  /homunculus:aggregate --migrate /path/to/worktree'
     exit 0
   fi
 
@@ -104,4 +165,15 @@ main() {
   echo "Total global observations: ${total:-0}"
 }
 
-main "$@"
+# Parse arguments
+if [ "$1" = "--migrate" ]; then
+  if [ -z "$2" ]; then
+    echo "ERROR: --migrate requires a path argument"
+    echo ""
+    echo "Usage: /homunculus:aggregate --migrate /path/to/worktree"
+    exit 1
+  fi
+  migrate_path "$2"
+else
+  main_aggregate
+fi
