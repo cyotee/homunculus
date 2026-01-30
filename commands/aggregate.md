@@ -14,18 +14,26 @@ Collect observations from configured sources into the global homunculus, then pr
 "${CLAUDE_PLUGIN_ROOT}/scripts/aggregate.sh" --migrate "<path>"
 ```
 
-## Detect Arguments
+## Detect Arguments and Execute
 
-Check if user provided `--migrate` flag:
+Parse the user's command arguments and run the appropriate script invocation.
 
 **If `--migrate <path>` provided:**
-Run the script with the migrate flag and path.
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/aggregate.sh" --migrate "<path>"
+```
 
 **If no arguments:**
-Run standard aggregation from all sources.
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/aggregate.sh"
+```
 
 **If `--migrate` without path AND current directory has `.claude/homunculus/`:**
-Offer to migrate from current directory.
+Ask: "Migrate observations from current directory?"
+If confirmed:
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/aggregate.sh" --migrate "$(pwd)"
+```
 
 ## Standard Aggregation Behavior
 
