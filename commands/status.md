@@ -24,6 +24,13 @@ cat .claude/homunculus/identity.json 2>/dev/null
 echo "Personal: $(ls .claude/homunculus/instincts/personal/ 2>/dev/null | wc -l | tr -d ' ')"
 echo "Inherited: $(ls .claude/homunculus/instincts/inherited/ 2>/dev/null | wc -l | tr -d ' ')"
 
+# Evolved capabilities (real Claude Code plugin)
+echo "=== Evolved Capabilities ==="
+echo "Commands: $(ls ~/.claude/homunculus-evolved/commands/*.md 2>/dev/null | wc -l | tr -d ' ')"
+echo "Skills: $(find ~/.claude/homunculus-evolved/skills -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')"
+echo "Agents: $(ls ~/.claude/homunculus-evolved/agents/*.md 2>/dev/null | wc -l | tr -d ' ')"
+jq -r '.version // "not installed"' ~/.claude/homunculus-evolved/.claude-plugin/plugin.json 2>/dev/null
+
 # Evolution ready?
 jq -r '.evolution.ready // empty | .[]' .claude/homunculus/identity.json 2>/dev/null
 

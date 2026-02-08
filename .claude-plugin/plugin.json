@@ -1,7 +1,7 @@
 {
   "name": "homunculus",
-  "version": "2.3.1",
-  "description": "A Claude Code plugin that's alive. Observes everything, learns instincts, evolves capabilities. Bound to one maker.",
+  "version": "2.4.0",
+  "description": "A Claude Code plugin that's alive. Observes everything, learns instincts, evolves real plugin capabilities. Bound to one maker.",
   "author": {
     "name": "cyotee",
     "upstream": "Nikshep Saravanna"

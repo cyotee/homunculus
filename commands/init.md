@@ -60,13 +60,16 @@ mkdir -p .claude/homunculus/sessions
 mkdir -p .claude/homunculus/instincts/personal
 mkdir -p .claude/homunculus/instincts/inherited
 
-# Evolved capabilities
+# Legacy evolved directory (deprecated - kept for backward compat)
 mkdir -p .claude/homunculus/evolved/agents
 mkdir -p .claude/homunculus/evolved/skills
 mkdir -p .claude/homunculus/evolved/commands
 
 # Initialize observations log
 touch .claude/homunculus/observations.jsonl
+
+# Create the evolved capabilities plugin (real Claude Code plugin)
+"${CLAUDE_PLUGIN_ROOT}/scripts/init-evolved-plugin.sh"
 ```
 
 Save `.claude/homunculus/identity.json`:
