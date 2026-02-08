@@ -68,14 +68,19 @@ source: "observation"
 
 ## Your Workflow
 
+**0. Ensure directories exist (self-healing):**
+```bash
+mkdir -p .claude/homunculus/instincts/personal
+mkdir -p .claude/homunculus/instincts/inherited
+```
+
 1. Read observations: `cat .claude/homunculus/observations.jsonl`
 2. Read existing instincts to avoid duplicates
 3. Look for patterns meeting thresholds
 4. Create instincts directly to `personal/` (auto-approved)
 5. Check for instinct clustering (5+ in same domain)
 6. If clustering found, update identity.json with evolution flag
-7. Archive processed observations to `observations.archive.jsonl`
-8. Clear `observations.jsonl` for fresh capture
+7. Archive and truncate observations (see below)
 
 ## Clustering Detection
 
@@ -96,6 +101,38 @@ jq --arg d "[DOMAIN]" '.evolution.ready += [$d] | .evolution.ready |= unique' \
 ```
 
 The session-memory skill will notify the user that evolution is available.
+
+## Archive and Truncate (Step 7)
+
+After processing observations, archive them so the active file stays small.
+
+**Detect context:** Check if running from the user's home directory or a project directory.
+
+```bash
+# Determine paths based on context
+if [ "$(pwd)" = "$HOME" ]; then
+  OBS_FILE="$HOME/.claude/homunculus/observations.jsonl"
+  ARCHIVE_FILE="$HOME/.claude/homunculus/observations.archive.jsonl"
+else
+  OBS_FILE=".claude/homunculus/observations.jsonl"
+  ARCHIVE_FILE=".claude/homunculus/observations.archive.jsonl"
+fi
+```
+
+**Archive then truncate:**
+```bash
+# Append current observations to archive
+cat "$OBS_FILE" >> "$ARCHIVE_FILE"
+
+# Truncate active observations for fresh capture
+: > "$OBS_FILE"
+```
+
+This ensures:
+- **Home directory sessions:** Global observations are archived and truncated, keeping the
+  global file from growing unbounded. The archive preserves all history for `--reprocess` or `--export`.
+- **Project directory sessions:** Local project observations are archived and truncated.
+  The aggregation command handles moving project observations to the global store separately.
 
 ## Important
 
